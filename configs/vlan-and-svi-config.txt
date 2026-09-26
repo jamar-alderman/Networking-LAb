@@ -1,0 +1,10 @@
+Known VLAN and gateway mappings (reported in supplied lab summary; not a full IOS configuration):
+VLAN 25 ENDusrs      192.168.10.0/24  SVI 192.168.10.1
+VLAN 30 VOICE        192.168.30.0/24  SVI 192.168.30.1
+VLAN 35 MNGMNT       subnet and SVI not established
+VLAN 45 MNGMNTUSRS   192.168.9.0/24   SVI 192.168.9.1
+VLAN 101 ACL         192.168.20.0/24  SVI 192.168.20.1
+VLAN 200 OTHERS      192.168.99.0/24  SVI 192.168.99.1
+
+Supplied IOS snippets for Vlan30 and Vlan45 are in dhcp-relay.txt.
+TODO: Add sanitized VLAN definitions and full SVI configuration output.

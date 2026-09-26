@@ -1,0 +1,17 @@
+! Supplied representative configuration for Fa0/7
+interface FastEthernet0/7
+ switchport mode access
+ switchport access vlan 25
+ switchport voice vlan 30
+ switchport port-security
+ switchport port-security maximum 3
+ switchport port-security mac-address sticky
+ switchport port-security violation restrict
+
+Observed assignments: Fa0/1-Fa0/5 access VLAN 25; Fa0/6-Fa0/8
+data VLAN 25 and voice VLAN 30; Fa0/21 access VLAN 101;
+Fa0/22-Fa0/24 access VLAN 45; Gi0/1 and Gi0/2 access VLAN 25.
+Fa0/8 has a similar data/voice/port-security design, but its full
+configuration has not been supplied.
+Fa0/2 also showed switchport voice vlan 35, identified as likely accidental.
+TODO: Verify whether a phone belongs on Fa0/2 before removing this assignment.

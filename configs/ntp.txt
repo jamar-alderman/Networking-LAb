@@ -1,0 +1,5 @@
+! Supplied switch configuration
+ntp server 192.168.10.5
+
+Server0 at 192.168.10.5 had NTP service enabled.
+TODO: Add complete sanitized service configuration if available.

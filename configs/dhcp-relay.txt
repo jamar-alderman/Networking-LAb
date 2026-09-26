@@ -1,0 +1,12 @@
+! Supplied configuration snippets, not complete interface sections
+interface Vlan30
+ ip address 192.168.30.1 255.255.255.0
+ ip helper-address 192.168.10.5
+interface Vlan45
+ ip address 192.168.9.1 255.255.255.0
+ ip helper-address 192.168.10.5
+
+Server0 at 192.168.10.5 provides DHCP in VLAN 25.
+Voice scope: network 192.168.30.0/24; gateway 192.168.30.1;
+starting address observed/configured around 192.168.30.6; DNS 8.8.8.8.
+TODO: Add Server0 DHCP scope screenshot and exact start address/client leases.

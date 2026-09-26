@@ -1,0 +1,12 @@
+DHCP snooping enabled globally and configured for VLANs 25, 30, and 45.
+Exact global IOS commands have not been supplied; do not reconstruct them.
+
+! Supplied Gi0/1 configuration snippet
+interface GigabitEthernet0/1
+ ip dhcp snooping trust
+ switchport access vlan 25
+ switchport mode access
+
+Client-facing FastEthernet ports reported trusted: no.
+Observed operational VLANs: none (see verification/dhcp-snooping-verification.md).
+TODO: Add the exact sanitized global configuration and full show output.

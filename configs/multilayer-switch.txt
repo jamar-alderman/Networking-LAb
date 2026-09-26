@@ -1,0 +1,8 @@
+3560-type Packet Tracer multilayer switch
+Server0: 192.168.10.5, directly connected to Gi0/1 in VLAN 25
+
+This is an evidence index, not a reconstructed complete running configuration.
+See vlan-and-svi-config.txt, dhcp-relay.txt, voice-and-access-ports.txt,
+port-security.txt, dhcp-snooping.txt, ntp.txt, and ssh-and-acl-notes.txt.
+
+TODO: Add sanitized show running-config output. Do not add credentials.

@@ -1,0 +1,13 @@
+SSH remote management was configured, but exact commands/login output
+have not been supplied.
+
+! Observed on Fa0/1
+ip access-group 10 in
+
+Fa0/1 was access VLAN 25. ACL 10 entries and traffic tests are unknown.
+Fa0/2 was access VLAN 25 with switchport voice vlan 35; likely accidental.
+If no phone belongs on Fa0/2, recommended correction:
+no switchport voice vlan 35
+This is a recommendation, not an evidenced completed change.
+
+TODO: Add sanitized SSH and ACL definitions plus verification output.

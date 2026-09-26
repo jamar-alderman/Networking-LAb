@@ -1,0 +1,10 @@
+! Supplied representative Fa0/7 lines
+interface FastEthernet0/7
+ switchport port-security
+ switchport port-security maximum 3
+ switchport port-security mac-address sticky
+ switchport port-security violation restrict
+
+The original maximum was 2 and was increased to 3 after phone+PC
+MAC-learning behavior generated violations. Do not treat 3 as the initial limit.
+TODO: Add sanitized Fa0/8 configuration and full status output for both ports.
