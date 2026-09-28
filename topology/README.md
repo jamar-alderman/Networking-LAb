@@ -21,4 +21,4 @@ Port-channel numbers are local to each device. Do not bundle links from an acces
 
 ![Partial Packet Tracer campus topology showing two cores, two distribution switches, servers, and access bundles](../screenshots/campus-topology-2026-09-28.png)
 
-One indicator on the far-left access bundle appears red in this capture. Use the corresponding switch's `show etherchannel summary` and interface status to determine whether a member is down or suspended; the image alone is not conclusive.
+The far-left bundle has a red canvas indicator in this capture. The user identified its Room 2 access switch and supplied `show etherchannel summary`: `Po2(SU)` with Fa0/22(P), Fa0/23(P), and Fa0/24(P). The CLI confirms all three members participate on the access side despite that indicator. Floor 1 distribution Po2 was also previously observed as `SU` with all three members `P`.

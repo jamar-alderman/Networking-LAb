@@ -6,6 +6,6 @@ The later `show interfaces trunk` output showed Po1 and Po2 trunking with native
 
 **Observed on DISTRIBUTION-FLOOR-2:** its supplied running config has Po1 and Po2 with Fa0/19–21 and Fa0/22–24, respectively, in active LACP mode, dot1q trunks, native 99, and allowed 10,20,30,45,99. `show ip interface brief` later showed both port-channels and all six member links `up/up`. No post-change per-VLAN forwarding output for Floor 2 is included here.
 
-The Room 1 access peer uses one passive LACP port-channel on Fa0/19–21; Room 2 uses one passive LACP port-channel on Fa0/22–24. An access-switch port-channel group number need not match its peer numerically, but the physical link membership and trunk parameters must agree.
+The Room 1 access peer uses one passive LACP port-channel on Fa0/19–21; Room 2 uses one passive LACP port-channel on Fa0/22–24. For the far-left Room 2 access switch, the newly supplied `show etherchannel summary` read `Po2(SU) LACP Fa0/22(P) Fa0/23(P) Fa0/24(P)`. This verifies the access-side bundle even though the topology screenshot displayed a red indicator on one drawn link. An access-switch port-channel group number need not match its peer numerically, but the physical link membership and trunk parameters must agree.
 
 **Evidence still needed:** sanitized `show etherchannel summary`, `show interfaces trunk`, and `show spanning-tree vlan 99` captures from all four access switches and both distribution switches in the final topology.

@@ -7,6 +7,6 @@ The image visibly shows:
 - One Server-PT device cabled to each distribution switch.
 - Three-link access bundles to room switches, though the screenshot only partly covers the Floor 1 access layer.
 - Unconnected/staged endpoint and wireless devices near the canvas edges.
-- A red link/status triangle on the far-left access bundle. This needs CLI verification; the screenshot alone does not prove whether a member is suspended, administratively down, or affected by some other state.
+- A red link/status triangle on the far-left access bundle. Subsequent CLI evidence on the corresponding Room 2 access switch showed `Po2(SU)` with Fa0/22(P), Fa0/23(P), and Fa0/24(P); all three member ports were bundled at the time of that output. The canvas indicator alone was misleading.
 
 The image does **not** display the exact server-facing interface names, server IP/gateway settings, SVI addresses, DHCP pools, or passing core pings. It therefore corroborates the physical topology but does not promote those planned services to verified status. Device labels on the canvas use names such as CORE-FLOOR 1/2 and may not match IOS hostnames CORE-1/CORE-2; use the CLI hostname and CDP to identify ports.
