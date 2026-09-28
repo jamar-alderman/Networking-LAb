@@ -1,8 +1,8 @@
 # Address plan
 
-## Configured core transit /30 networks
+## Initial core transit /30 assignments (pre-fix)
 
-These addresses are present in the supplied CORE-2 and Floor 2 running configurations; CORE-1 addresses also appeared in `show ip interface brief`. Floor 1's routed interface configuration was supplied as commands, but its complete current running configuration has not been captured here.
+These assignments reflect the supplied pre-fix CORE-2 and Floor 2 running configurations; CORE-1 addresses also appeared in `show ip interface brief`. The builder later reported that distribution uplink IP addresses were mapped backwards relative to the physical core ports and swapped the distribution assignments, after which direct pings worked. The final distribution port/IP mapping has not been captured here. **Do not use the distribution interface column below as the final cabling/configuration map.** Floor 1's complete current running configuration has not been captured here.
 
 | Link | Network | Core interface / IP | Distribution interface / IP | Broadcast |
 | --- | --- | --- | --- | --- |
@@ -11,7 +11,7 @@ These addresses are present in the supplied CORE-2 and Floor 2 running configura
 | Core 1 to Floor 2 | 10.255.0.8/30 | CORE-1 Gi0/2 10.255.0.9 | FLOOR-2 Gi0/1 10.255.0.10 | 10.255.0.11 |
 | Core 2 to Floor 2 | 10.255.0.12/30 | CORE-2 Gi0/1 10.255.0.13 | FLOOR-2 Gi0/2 10.255.0.14 | 10.255.0.15 |
 
-Mask: 255.255.255.252. The next unused /30 is 10.255.0.16/30; no inter-core link has been established.
+All transit networks use mask 255.255.255.252. The /30 network allocations and endpoint IP pairs remain valid; the distribution-side interface placement requires post-fix verification. The next unused /30 is 10.255.0.16/30; no inter-core link has been established.
 
 ## Proposed floor VLAN subnets
 
