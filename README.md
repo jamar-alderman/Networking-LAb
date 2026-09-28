@@ -10,7 +10,7 @@ Cisco Packet Tracer simulation of a two-floor campus network. Each floor has one
 | --- | --- |
 | Access uplinks | Three-member LACP bundles from each room access switch to its floor distribution switch. Floor 1 distribution showed Po1(SU) and Po2(SU), all members (P), both trunks forwarding VLANs 10,20,30,45,99. |
 | VLANs | 10 USERS, 20 VOICE, 30 SERVERS, 45 GUEST, 99 MGMT; native VLAN 99 on the existing access-to-distribution trunks. |
-| Core transit | Four routed /30 networks were configured. The initial Floor 2 interface IPs were assigned opposite to the physical core connections. The builder reports correcting the distribution interface IP assignments and then obtaining successful core-to-distribution pings. Initial running configs and failed ping output are preserved; final port/IP output and passing ping transcript have not yet been captured here. |
+| Core transit | Four routed /30 networks were configured. The interface IP plan was correct, but the physical core-to-distribution cables initially reached the wrong ports. The builder moved the cables to match the documented port map and reports that direct core-to-distribution pings then worked. Initial running configs and failed ping output are preserved; post-fix passing ping transcript has not yet been captured here. |
 | Floor gateways | A per-floor SVI address plan and paste-ready commands were provided. No post-change running config or SVI status output has been supplied yet. |
 | DHCP/security | The new screenshot shows a server cabled to each distribution. Server IPs, switch ports, pools, relay, snooping, DAI, ACLs, OSPF/static failover, and endpoint tests remain unverified in this recreated topology. |
 
@@ -44,7 +44,7 @@ There is **link redundancy inside each three-member access EtherChannel** and tw
 
 ## Next tests
 
-1. Capture `show ip interface brief`, `show cdp neighbors`, `show ip route`, and directly connected core pings from **each** distribution after the IP reassignment, then update the final port map.
+1. Capture `show ip interface brief`, `show cdp neighbors`, `show ip route`, and directly connected core pings from **each** distribution after the cable correction, confirming the documented port map.
 2. Confirm the five SVIs per floor are configured and `up/up`, then configure inter-floor routing and test both directions with hosts.
 3. Attach DHCP servers on the VLAN 30 server access ports, set static server IPs, define nonoverlapping scopes if both serve the same client networks, and configure `ip helper-address` on remote client SVIs.
 4. Only after successful leases and snooping bindings, add DHCP snooping, then DAI on client VLANs. Test permitted and blocked cases, guest ACLs, and a link failure.
