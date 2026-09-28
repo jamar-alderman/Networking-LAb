@@ -5,6 +5,8 @@
 - **Access:** two Catalyst 2960 room switches per floor, with three FastEthernet member links per room.
 - **Servers and endpoints:** the September 28 screenshot shows one server physically connected to each distribution. The exact port, VLAN, server IP, and DHCP service state are not visible.
 
+The following table records the **initial intended map, before the builder corrected reversed distribution interface IP assignments**. It is not a verified final port map. Capture post-fix `show ip interface brief` and `show cdp neighbors` before using these rows as cabling instructions.
+
 | Distribution port | Peer core port | Addresses |
 | --- | --- | --- |
 | FLOOR-1 Gi0/1 | CORE-1 Gi0/1 | 10.255.0.2 ↔ 10.255.0.1/30 |
@@ -17,7 +19,7 @@
 | Fa0/19–21 | Room 1 Fa0/19–21 | Po1, LACP active on distribution and passive on access | dot1q, native 99, allowed 10,20,30,45,99 |
 | Fa0/22–24 | Room 2 Fa0/22–24 | Po2, LACP active on distribution and passive on access | dot1q, native 99, allowed 10,20,30,45,99 |
 
-Port-channel numbers are local to each device. Do not bundle links from an access switch to two independent distribution switches into one port-channel. The prior canvas labels used floor-like names for core devices; verify the **CLI hostname and interface IP**, not a canvas label, before changing a cable. A Packet Tracer file and full-frame topology screenshot remain to be added. The partial screenshot below captures both cores, both distribution switches, both servers, and some access links.
+Port-channel numbers are local to each device. Do not bundle links from an access switch to two independent distribution switches into one port-channel. The prior canvas labels used floor-like names for core devices; verify the **CLI hostname, CDP neighbor, and interface IP** before updating the final map. The root cause reported after these initial captures was reversed IP placement on the distribution uplinks; correcting those assignments restored direct pings. A Packet Tracer file and full-frame topology screenshot remain to be added. The partial screenshot below captures both cores, both distribution switches, both servers, and some access links.
 
 ![Partial Packet Tracer campus topology showing two cores, two distribution switches, servers, and access bundles](../screenshots/campus-topology-2026-09-28.png)
 
