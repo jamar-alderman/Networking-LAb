@@ -1,0 +1,21 @@
+! Extracted from CORE-2 "show running-config" supplied September 27, 2026.
+! This is observed configuration, not a complete device export.
+hostname CORE-2
+ip routing
+interface GigabitEthernet0/1
+ description TO-DISTRIBUTION-FLOOR-2
+ no switchport
+ ip address 10.255.0.13 255.255.255.252
+ duplex auto
+ speed auto
+!
+interface GigabitEthernet0/2
+ description TO-DISTRIBUTION-FLOOR-1
+ no switchport
+ ip address 10.255.0.5 255.255.255.252
+ duplex auto
+ speed auto
+!
+interface Vlan1
+ no ip address
+ shutdown

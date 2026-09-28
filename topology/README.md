@@ -1,5 +1,20 @@
-# Topology notes
+# Three-tier topology and physical port map
 
-Cisco Packet Tracer 3560-type multilayer switch; Server0 (`192.168.10.5`) connected to `Gi0/1` in VLAN 25; Cisco 7960-type phones with PCs on data/voice ports; AccessPoint-PT devices and a wireless laptop/client. The SVI gateways and subnet mappings are in the [main README](../README.md#topology-and-architecture). No gateway of last resort is present.
+- **Core:** two independent Catalyst 3560 multilayer switches, CORE-1 and CORE-2.
+- **Distribution:** one Catalyst 3560 per floor, DISTRIBUTION-FLOOR-1 and DISTRIBUTION-FLOOR-2.
+- **Access:** two Catalyst 2960 room switches per floor, with three FastEthernet member links per room.
+- **Servers and endpoints:** DHCP servers were proposed on distribution Fa0/1 in VLAN 30; no completed server or endpoint test output was supplied.
 
-**TODO:** Add the actual `.pkt` file if available and a readable topology screenshot. Confirm all physical links, AP ports, client IPs, and wireless settings from the saved Packet Tracer file before documenting them. Only describe the green/end-user, blue/management, red/voice, yellow/infrastructure color coding if the screenshot visibly supports it.
+| Distribution port | Peer core port | Addresses |
+| --- | --- | --- |
+| FLOOR-1 Gi0/1 | CORE-1 Gi0/1 | 10.255.0.2 ↔ 10.255.0.1/30 |
+| FLOOR-1 Gi0/2 | CORE-2 Gi0/2 | 10.255.0.6 ↔ 10.255.0.5/30 |
+| FLOOR-2 Gi0/1 | CORE-1 Gi0/2 | 10.255.0.10 ↔ 10.255.0.9/30 |
+| FLOOR-2 Gi0/2 | CORE-2 Gi0/1 | 10.255.0.14 ↔ 10.255.0.13/30 |
+
+| Floor distribution ports | Access peer | Port-channel | Trunk |
+| --- | --- | --- | --- |
+| Fa0/19–21 | Room 1 Fa0/19–21 | Po1, LACP active on distribution and passive on access | dot1q, native 99, allowed 10,20,30,45,99 |
+| Fa0/22–24 | Room 2 Fa0/22–24 | Po2, LACP active on distribution and passive on access | dot1q, native 99, allowed 10,20,30,45,99 |
+
+Port-channel numbers are local to each device. Do not bundle links from an access switch to two independent distribution switches into one port-channel. The prior canvas labels used floor-like names for core devices; verify the **CLI hostname and interface IP**, not a canvas label, before changing a cable. A Packet Tracer file and current full-topology screenshot remain to be added.
