@@ -56,7 +56,7 @@ end
 
 ## Proposed local server ports and static server IPs
 
-If Fa0/1 is unused on each distribution, connect DHCP-1 to FLOOR-1 Fa0/1 and DHCP-2 to FLOOR-2 Fa0/1. Apply on **each** distribution:
+The current screenshot shows one server physically cabled to each distribution, but does not reveal the switch port numbers. If each server is on Fa0/1 as proposed, apply on **each** distribution; otherwise replace the interface name with the actual server-facing port:
 
 ```ios
 configure terminal

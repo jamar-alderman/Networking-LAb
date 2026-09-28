@@ -12,11 +12,11 @@ Cisco Packet Tracer simulation of a two-floor campus network. Each floor has one
 | VLANs | 10 USERS, 20 VOICE, 30 SERVERS, 45 GUEST, 99 MGMT; native VLAN 99 on the existing access-to-distribution trunks. |
 | Core transit | Four routed /30 links configured on Gi0/1–2 of the two cores and two distributions. Core 2 and Floor 2 running configs and connected-route outputs were supplied. The user subsequently reported the core links speaking to distribution; passing ping output after the cable correction has not yet been captured here. |
 | Floor gateways | A per-floor SVI address plan and paste-ready commands were provided. No post-change running config or SVI status output has been supplied yet. |
-| DHCP/security | Two server placements, relay, snooping, DAI, ACLs, OSPF/static failover, and endpoint tests are planned, not verified in this recreated topology. |
+| DHCP/security | The new screenshot shows a server cabled to each distribution. Server IPs, switch ports, pools, relay, snooping, DAI, ACLs, OSPF/static failover, and endpoint tests remain unverified in this recreated topology. |
 
 ## Architecture
 
-See [topology and port map](topology/README.md) and the [address plan](address-plan.md). The access switches are Layer 2; the distribution switches carry the floor VLAN gateways and route toward the two cores. Each distribution has a separate routed link to each core. No EtherChannel spans two independent core switches.
+See [the current screenshot](screenshots/campus-topology-2026-09-28.png), [topology and port map](topology/README.md), and the [address plan](address-plan.md). The access switches are Layer 2; the distribution switches carry the floor VLAN gateways and route toward the two cores. Each distribution has a separate routed link to each core. No EtherChannel spans two independent core switches.
 
 ```mermaid
 flowchart TB
@@ -39,6 +39,7 @@ There is **link redundancy inside each three-member access EtherChannel** and tw
 - [Access bundle and trunk verification](verification/access-uplinks.md)
 - [Core transit routes and ARP investigation](verification/core-transit.md)
 - [Floor 2 ARP drop investigation](troubleshooting/floor-2-arp-drop.md)
+- [New topology screenshot observations](verification/topology-screenshot.md)
 - [Proposed SVI and DHCP server-port commands](plans/gateways-and-dhcp-ports.md)
 
 ## Next tests
@@ -47,6 +48,6 @@ There is **link redundancy inside each three-member access EtherChannel** and tw
 2. Confirm the five SVIs per floor are configured and `up/up`, then configure inter-floor routing and test both directions with hosts.
 3. Attach DHCP servers on the VLAN 30 server access ports, set static server IPs, define nonoverlapping scopes if both serve the same client networks, and configure `ip helper-address` on remote client SVIs.
 4. Only after successful leases and snooping bindings, add DHCP snooping, then DAI on client VLANs. Test permitted and blocked cases, guest ACLs, and a link failure.
-5. Export the current Packet Tracer file and a clean topology screenshot; neither is present in this repository yet.
+5. Export the current Packet Tracer file and a full-frame topology screenshot; the current screenshot shows only part of the access layer.
 
 The earlier lab used 192.168.x subnets and VLANs 25/30/35/45/101/200. Its documents remain in the archive and should not be read as the configuration of this new topology.
