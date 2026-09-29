@@ -1,28 +1,35 @@
-# Address plan
+# Campus address map
 
-## Core transit /30 address plan
+Current design documented during the September 29 lab session. Each floor uses the same VLAN IDs with distinct IP subnets; the routed core links separate the floor Layer 2 domains. Gateways are SVIs on the respective floor distribution switch.
 
-These assignments reflect the supplied CORE-2 and Floor 2 running configurations; CORE-1 addresses also appeared in `show ip interface brief`. The builder later clarified that the physical cables, not these IP assignments, were wrong. They moved the cables to match this map and report that direct pings worked. Post-fix CDP and passing ping output have not yet been captured here. Floor 1's complete current running configuration has not been captured here.
+## VLANs and gateways
 
-| Link | Network | Core interface / IP | Distribution interface / IP | Broadcast |
-| --- | --- | --- | --- | --- |
-| Core 1 to Floor 1 | 10.255.0.0/30 | CORE-1 Gi0/1 10.255.0.1 | FLOOR-1 Gi0/1 10.255.0.2 | 10.255.0.3 |
-| Core 2 to Floor 1 | 10.255.0.4/30 | CORE-2 Gi0/2 10.255.0.5 | FLOOR-1 Gi0/2 10.255.0.6 | 10.255.0.7 |
-| Core 1 to Floor 2 | 10.255.0.8/30 | CORE-1 Gi0/2 10.255.0.9 | FLOOR-2 Gi0/1 10.255.0.10 | 10.255.0.11 |
-| Core 2 to Floor 2 | 10.255.0.12/30 | CORE-2 Gi0/1 10.255.0.13 | FLOOR-2 Gi0/2 10.255.0.14 | 10.255.0.15 |
+| VLAN | Purpose | Floor 1 subnet | Floor 1 gateway | Floor 2 subnet | Floor 2 gateway |
+| --- | --- | --- | --- | --- | --- |
+| 10 | USERS | 192.168.10.0/24 | 192.168.10.1 | 192.168.110.0/24 | 192.168.110.1 |
+| 20 | VOICE | 192.168.20.0/24 | 192.168.20.1 | 192.168.120.0/24 | 192.168.120.1 |
+| 30 | SERVERS | 192.168.30.0/24 | 192.168.30.1 | 192.168.130.0/24 | 192.168.130.1 |
+| 45 | GUEST | 192.168.45.0/24 | 192.168.45.1 | 192.168.145.0/24 | 192.168.145.1 |
+| 99 | MGMT / native | 192.168.99.0/24 | 192.168.99.1 | 192.168.199.0/24 | 192.168.199.1 |
 
-All transit networks use mask 255.255.255.252. The /30 network allocations and endpoint IP pairs remain valid; the corrected physical cable endpoints should be verified with post-fix CDP output. The next unused /30 is 10.255.0.16/30; no inter-core link has been established.
+All client/server VLAN subnets use mask 255.255.255.0. The earlier proposed 10.1.x/10.2.x VLAN allocation was replaced by the 192.168.x allocation above; it should not be used as the current client address plan.
 
-## Proposed floor VLAN subnets
+## DHCP servers
 
-The following SVI commands were supplied during the session, but **no post-change SVI output was provided**. Treat this as the planned gateway map until verified.
-
-| VLAN | Purpose | Floor 1 subnet / gateway | Floor 2 subnet / gateway |
+| Server | VLAN | Static address | Default gateway |
 | --- | --- | --- | --- |
-| 10 | USERS | 10.1.10.0/24 / 10.1.10.1 | 10.2.10.0/24 / 10.2.10.1 |
-| 20 | VOICE | 10.1.20.0/24 / 10.1.20.1 | 10.2.20.0/24 / 10.2.20.1 |
-| 30 | SERVERS | 10.1.30.0/24 / 10.1.30.1 | 10.2.30.0/24 / 10.2.30.1 |
-| 45 | GUEST | 10.1.45.0/24 / 10.1.45.1 | 10.2.45.0/24 / 10.2.45.1 |
-| 99 | MGMT | 10.1.99.0/24 / 10.1.99.1 | 10.2.99.0/24 / 10.2.99.1 |
+| Floor 1 Server0 | 30 | 192.168.30.10/24 | 192.168.30.1 |
+| Floor 2 Server1 | 30 | 192.168.130.10/24 | 192.168.130.1 |
 
-The VLAN IDs repeat on the two floors, but the two routed distribution-to-core boundaries keep the IP networks distinct. These /24 client subnets are a simple initial allocation, not a host-count-optimized VLSM design. DHCP-1 at 10.1.30.10 and DHCP-2 at 10.2.30.10 were proposed, not observed configured.
+The server NIC gateway is the server VLAN gateway. Each DHCP pool supplies its client VLAN gateway. Client SVIs relay DHCP to their floor's server. Exact final pool start/end ranges are not recorded in the supplied exports.
+
+## Routed core-to-distribution links
+
+| Link | Subnet | Core interface / IP | Distribution interface / IP |
+| --- | --- | --- | --- |
+| Core 1 ↔ Floor 1 | 10.255.0.0/30 | CORE-1 Gi0/1 — 10.255.0.1 | FLOOR-1 Gi0/1 — 10.255.0.2 |
+| Core 2 ↔ Floor 1 | 10.255.0.4/30 | CORE-2 Gi0/2 — 10.255.0.5 | FLOOR-1 Gi0/2 — 10.255.0.6 |
+| Core 1 ↔ Floor 2 | 10.255.0.8/30 | CORE-1 Gi0/2 — 10.255.0.9 | FLOOR-2 Gi0/1 — 10.255.0.10 |
+| Core 2 ↔ Floor 2 | 10.255.0.12/30 | CORE-2 Gi0/1 — 10.255.0.13 | FLOOR-2 Gi0/2 — 10.255.0.14 |
+
+All transit links use mask 255.255.255.252. These are separate routed links, not one EtherChannel spanning independent core devices.

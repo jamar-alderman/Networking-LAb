@@ -1,79 +1,25 @@
-# Proposed gateway and DHCP server-port configuration
+# Gateway and DHCP implementation reference
 
-**Status: proposed commands from the September 27–28 session.** The supplied Floor 2 running config predates these changes and has no VLAN SVIs or DHCP server Fa0/1 config. Do not describe this page as implemented until current device output verifies it. VLANs 10,20,30,45,99 must exist locally and trunks must be active.
+The earlier proposed 10.1.x/10.2.x addressing was superseded by the [September 29 address map](../address-plan.md). The builder confirmed working DHCP for PCs and phones on both floors.
 
-## Floor 1 distribution SVIs
+Servers use static addresses in VLAN 30: Floor 1 192.168.30.10/24 with gateway 192.168.30.1, and Floor 2 192.168.130.10/24 with gateway 192.168.130.1. Each server's distribution connection is an access port in VLAN 30; the exact physical port is not identified in the supplied exports.
+
+The following are documented configuration excerpts, not complete running-config exports:
 
 ```ios
-configure terminal
+! Floor 1 distribution
 interface vlan 10
- ip address 10.1.10.1 255.255.255.0
- no shutdown
-exit
+ ip helper-address 192.168.30.10
 interface vlan 20
- ip address 10.1.20.1 255.255.255.0
- no shutdown
-exit
-interface vlan 30
- ip address 10.1.30.1 255.255.255.0
- no shutdown
-exit
-interface vlan 45
- ip address 10.1.45.1 255.255.255.0
- no shutdown
-exit
-interface vlan 99
- ip address 10.1.99.1 255.255.255.0
- no shutdown
-end
+ ip helper-address 192.168.30.10
 ```
 
-## Floor 2 distribution SVIs
-
 ```ios
-configure terminal
+! Floor 2 distribution
 interface vlan 10
- ip address 10.2.10.1 255.255.255.0
- no shutdown
-exit
+ ip helper-address 192.168.130.10
 interface vlan 20
- ip address 10.2.20.1 255.255.255.0
- no shutdown
-exit
-interface vlan 30
- ip address 10.2.30.1 255.255.255.0
- no shutdown
-exit
-interface vlan 45
- ip address 10.2.45.1 255.255.255.0
- no shutdown
-exit
-interface vlan 99
- ip address 10.2.99.1 255.255.255.0
- no shutdown
-end
+ ip helper-address 192.168.130.10
 ```
 
-## Proposed local server ports and static server IPs
-
-The current screenshot shows one server physically cabled to each distribution, but does not reveal the switch port numbers. If each server is on Fa0/1 as proposed, apply on **each** distribution; otherwise replace the interface name with the actual server-facing port:
-
-```ios
-configure terminal
-interface FastEthernet0/1
- description DHCP-SERVER
- switchport mode access
- switchport access vlan 30
- spanning-tree portfast
- no shutdown
-end
-```
-
-| Server | Static IP / mask | Default gateway |
-| --- | --- | --- |
-| DHCP-1 | 10.1.30.10/24 | 10.1.30.1 |
-| DHCP-2 | 10.2.30.10/24 | 10.2.30.1 |
-
-Confirm local gateway-to-server ping first. Remote client VLANs need `ip helper-address` on their **distribution SVI** after routing to the server works. Each pool needs the corresponding floor/VLAN network and gateway. Two DHCP servers are not redundant merely because both exist: if both serve the same client subnet, use nonoverlapping ranges and relay to both. DHCP snooping and DAI should follow a proven DHCP lease and binding, not precede it.
-
-Verification: `show vlan brief`, `show ip interface brief`, `show ip route connected`, local server pings, then client leases. Static routes, OSPF, DHCP helpers, security features, guest ACLs, and failover tests have not been demonstrated in the recreated topology.
+Each client DHCP pool supplies its client VLAN's gateway. A server's NIC gateway belongs to the server subnet. Gateway addresses and client networks are listed in the current address map.

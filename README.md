@@ -1,22 +1,20 @@
-# Three-tier campus network lab
+# Three-Tier Cisco Campus Network Lab
 
-Cisco Packet Tracer simulation of a two-floor campus network. Each floor has one multilayer distribution switch and two room access switches; two multilayer core switches provide separate routed uplinks. This repo records what was configured, what switch output verified, and what is still in progress.
+A Cisco Packet Tracer project modeling a two-floor campus with separate access, distribution, and core layers. Each room has an access switch; each floor has a multilayer distribution switch; two multilayer core switches connect the floor networks over routed links.
 
-> Current build, September 27–28, 2026. This is simulated equipment, not a production network. The earlier single-switch exercise is preserved in [the archive](archive/single-switch-2026/README.md).
+I built the switching and routing infrastructure, configured DHCP services for PCs and IP phones, and tested an extended ACL against guest traffic. The project records the network design, configuration captures, verification results, and troubleshooting decisions.
 
-## At a glance
+**Environment:** Cisco Packet Tracer simulation. **Latest documented build:** September 29, 2026.
 
-| Area | Current evidence |
-| --- | --- |
-| Access uplinks | Three-member LACP bundles from each room access switch to its floor distribution switch. Floor 1 distribution showed Po1(SU) and Po2(SU), all members (P), both trunks forwarding VLANs 10,20,30,45,99. |
-| VLANs | 10 USERS, 20 VOICE, 30 SERVERS, 45 GUEST, 99 MGMT; native VLAN 99 on the existing access-to-distribution trunks. |
-| Core transit | Four routed /30 networks were configured. The interface IP plan was correct, but the physical core-to-distribution cables initially reached the wrong ports. The builder moved the cables to match the documented port map and reports that direct core-to-distribution pings then worked. Initial running configs and failed ping output are preserved; post-fix passing ping transcript has not yet been captured here. |
-| Floor gateways | A per-floor SVI address plan and paste-ready commands were provided. No post-change running config or SVI status output has been supplied yet. |
-| DHCP/security | The new screenshot shows a server cabled to each distribution. Server IPs, switch ports, pools, relay, snooping, DAI, ACLs, OSPF/static failover, and endpoint tests remain unverified in this recreated topology. |
+## Design inspiration
 
-## Architecture
+The design follows Cisco's hierarchical campus network model: **access, distribution, and core**. Cisco describes these as the traditional three tiers of a campus network in [Enterprise Campus 3.0 Architecture: Overview and Framework](https://www.cisco.com/c/en/us/td/docs/solutions/Enterprise/Campus/campover.html).
 
-See [the current screenshot](screenshots/campus-topology-2026-09-28.png), [topology and port map](topology/README.md), and the [address plan](address-plan.md). The access switches are Layer 2; the distribution switches carry the floor VLAN gateways and route toward the two cores. Each distribution has a separate routed link to each core. No EtherChannel spans two independent core switches.
+This project adapts that model to a two-floor lab. The specific topology, VLANs, addressing, routing, and traffic policies were developed for this project rather than copied from a Cisco reference topology.
+
+## Topology
+
+![Packet Tracer campus topology, September 29, 2026](screenshots/campus-topology-2026-09-29.png)
 
 ```mermaid
 flowchart TB
@@ -24,30 +22,67 @@ flowchart TB
   C1 --- D2["DISTRIBUTION-FLOOR-2"]
   C2["CORE-2"] --- D1
   C2 --- D2
-  D1 --- A1["Floor 1 room switches"]
-  D2 --- A2["Floor 2 room switches"]
+  D1 ---|"LACP Po1"| R11["Floor 1 Room 1"]
+  D1 ---|"LACP Po2"| R12["Floor 1 Room 2"]
+  D2 ---|"LACP Po1"| R21["Floor 2 Room 1"]
+  D2 ---|"LACP Po2"| R22["Floor 2 Room 2"]
 ```
 
-There is **link redundancy inside each three-member access EtherChannel** and two physical routed uplinks per distribution. End-to-end failover is not established until routing and traffic tests prove it. Each floor still has a single distribution switch, so that switch remains a point of failure.
+Room switches connect PCs and phones through Layer 2 access ports. Distribution switches provide the VLAN gateway SVIs, DHCP relay, and inter-VLAN routing. Both distributions connect to both cores through separate routed /30 links; OSPF exchanges the floor routes. Each floor has a DHCP server in its server VLAN.
 
-## Evidence and configuration
+The screenshot also shows access points and two additional, unconnected distribution switches. The unconnected switches represent the planned backup distribution devices; they are not part of the working forwarding topology. Canvas labels such as `CORE-FLOOR 1` identify the two core devices; the normalized names above clarify their roles.
 
-- [Observed CORE-2 running configuration](configs/core-2-observed.txt)
-- [CORE-1 and Floor 1 uplink evidence](configs/core-1-and-floor-1-evidence.md)
-- [Room access switch uplink configuration](configs/access-switch-uplinks.md)
-- [Observed Floor 2 distribution running configuration](configs/distribution-floor-2-observed.txt)
-- [Access bundle and trunk verification](verification/access-uplinks.md)
-- [Core transit routes and ARP investigation](verification/core-transit.md)
-- [Floor 2 ARP drop investigation](troubleshooting/floor-2-arp-drop.md)
-- [New topology screenshot observations](verification/topology-screenshot.md)
-- [Proposed SVI and DHCP server-port commands](plans/gateways-and-dhcp-ports.md)
+## Implementation
 
-## Next tests
+| Area | Implementation |
+| --- | --- |
+| VLAN segmentation | VLAN 10 USERS, 20 VOICE, 30 SERVERS, 45 GUEST, and 99 MGMT |
+| Access uplinks | Separate three-member LACP EtherChannels for each room; Po1 uses Fa0/19–21 and Po2 uses Fa0/22–24 |
+| Trunking | VLANs 10,20,30,45,99 allowed; native VLAN 99 |
+| Floor routing | Distribution SVIs provide the floor gateways and inter-VLAN routing |
+| Core routing | Four routed /30 links and single-area OSPF between the core and distribution switches |
+| DHCP | Per-floor servers and client pools, with relay from the client VLAN SVIs; PCs and phones received addresses |
+| Traffic policy | Floor 2 inbound guest ACL blocks ICMP echo requests to its user subnet; four deny matches observed |
 
-1. Capture `show ip interface brief`, `show cdp neighbors`, `show ip route`, and directly connected core pings from **each** distribution after the cable correction, confirming the documented port map.
-2. Confirm the five SVIs per floor are configured and `up/up`, then configure inter-floor routing and test both directions with hosts.
-3. Attach DHCP servers on the VLAN 30 server access ports, set static server IPs, define nonoverlapping scopes if both serve the same client networks, and configure `ip helper-address` on remote client SVIs.
-4. Only after successful leases and snooping bindings, add DHCP snooping, then DAI on client VLANs. Test permitted and blocked cases, guest ACLs, and a link failure.
-5. Export the current Packet Tracer file and a full-frame topology screenshot; the current screenshot shows only part of the access layer.
+See [the IP map](address-plan.md) and [the physical port map](topology/README.md).
 
-The earlier lab used 192.168.x subnets and VLANs 25/30/35/45/101/200. Its documents remain in the archive and should not be read as the configuration of this new topology.
+## Verification
+
+| Check | Recorded result |
+| --- | --- |
+| `show etherchannel summary` | Port-channels reported `SU`; member ports reported `P` |
+| `show interfaces trunk` | Port-channels trunked with the intended allowed VLANs and native VLAN 99 |
+| OSPF neighbor and route checks | Four Layer 3 switches formed adjacencies and learned remote-floor routes in the lab session |
+| Inter-floor connectivity | Opposite-floor user gateways responded; a PC ping succeeded after an initial timeout |
+| DHCP clients | Builder confirmed PCs and phones on both floors received DHCP addresses |
+| Floor 2 ACL 102 | Supplied CLI output recorded four matches on the guest-to-user ICMP deny rule |
+
+Configuration files and screenshots are stored as evidence. Session observations are identified in [the September 29 verification record](verification/campus-services-2026-09-29.md); the earlier config exports capture an earlier build stage and are not presented as final full-device exports.
+
+## Troubleshooting
+
+- **Physical link placement:** Core-to-distribution cables initially reached ports different from the IP map. Moving the cables to the documented ports restored connectivity; the IP assignments were not changed.
+- **EtherChannel configuration:** Suspended members and trunk encapsulation errors were resolved by correcting LACP membership and matching trunk settings. The supplied exports use distribution `active` and access `passive`.
+- **Missing VLANs:** VLANs had to be created locally on newly added switches before the trunks could carry them as active VLANs.
+- **DHCP configuration:** The server's own gateway belongs to its server subnet, while each DHCP pool supplies the gateway of the client subnet. Helpers on client SVIs relay requests to the server.
+- **DHCP snooping:** Enabling snooping disrupted DHCP. Trust was first applied to the wrong physical uplink members, then corrected; DHCP still failed once snooping was enabled globally. Snooping was disabled to restore leases, and DAI was deferred. The precise remaining cause was not established. See [the troubleshooting record](troubleshooting/dhcp-snooping-campus.md).
+- **ACL syntax and placement:** Correcting the wildcard mask and applying ACL 102 to the distribution's VLAN 45 SVI produced four deny matches during the Floor 2 test.
+
+## Scope
+
+The tested ACL blocks guest ping requests to the Floor 2 user subnet; it permits other traffic and does not implement full guest isolation. Two core paths are configured, but failover behavior is not claimed as tested. Each floor's working distribution switch remains a point of failure. Wireless devices appear in the topology; wireless service verification is outside the documented results.
+
+## Future work
+
+Add and configure one backup distribution switch per floor.
+
+## Repository contents
+
+- [Topology and physical port map](topology/README.md)
+- [VLAN, gateway, server, and transit addressing](address-plan.md)
+- [Supplied configuration captures](configs/campus-captures/README.md)
+- [September 29 verification record](verification/campus-services-2026-09-29.md)
+- [DHCP snooping troubleshooting](troubleshooting/dhcp-snooping-campus.md)
+- [Earlier single-switch exercise](archive/single-switch-2026/README.md)
+
+Earlier September 27–28 captures remain as build history. Their proposed addressing and pending-status notes reflect those stages; the current address map and September 29 record describe this build.
